@@ -3,6 +3,9 @@ using System.Diagnostics.Eventing.Reader;
 using System.Security;
 using System.Collections;
 using Newtonsoft.Json;
+using System.Yaml.Serialization;
+using YamlDotNet.Serialization;
+
 
 namespace EventQuery
 {
@@ -20,16 +23,16 @@ namespace EventQuery
             {
                 _verbose = value;
             }
-
         }
 
         private String _query = @"<QueryList>" +
-                  "<Query Id=\"0\" Path=\"Microsoft-Windows-TaskScheduler/Operational\">" +
-                  "<Select Path=\"Microsoft-Windows-TaskScheduler/Operational\">" +
+                  "<Query Id='0' Path='Microsoft-Windows-TaskScheduler/Operational'>" +
+                  "<Select Path='Microsoft-Windows-TaskScheduler/Operational'>" +
                   "*[System[(Level=1  or Level=2 or Level=3 or Level=4) and " +
                   "TimeCreated[timediff(@SystemTime) &lt;= 14400000]]]" + "</Select>" +
                   "</Query>" +
                   "</QueryList>";
+
         public String Query
         {
             get
@@ -40,9 +43,7 @@ namespace EventQuery
             {
                 _query = value;
             }
-
         }
-
 
         public object[] QueryActiveLog()
         {
@@ -58,10 +59,14 @@ namespace EventQuery
             for (EventRecord eventInstance = logReader.ReadEvent();
                 null != eventInstance; eventInstance = logReader.ReadEvent())
             {
-
                 string eventlog_json = JsonConvert.SerializeObject(eventInstance);
                 eventlog_json_arraylist.Add(eventlog_json);
 
+                var serializer = new YamlSerializer();
+                String yaml = serializer.Serialize(eventInstance);
+
+                var serializer2 = new YamlDotNet.Serialization.Serializer();
+                serializer2.Serialize(System.Console.Out, eventInstance);
                 if (Verbose)
                 {
                     Console.WriteLine("-----------------------------------------------------");
@@ -82,12 +87,9 @@ namespace EventQuery
                 }
                 catch (EventLogException)
                 {
-
                     // The event description contains parameters, and no parameters were 
                     // passed to the FormatDescription method, so an exception is thrown.
-
                 }
-
                 // Cast the EventRecord object as an EventLogRecord object to 
                 // access the EventLogRecord class properties
                 EventLogRecord logRecord = (EventLogRecord)eventInstance;
@@ -99,7 +101,5 @@ namespace EventQuery
             object[] result = eventlog_json_arraylist.ToArray();
             return result;
         }
-
-
     }
 }
