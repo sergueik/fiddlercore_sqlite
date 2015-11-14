@@ -25,10 +25,10 @@ namespace WebTester
             database = String.Format("{0}\\data.db", dataFolderPath);
             dataSource = "data source=" + database;
             tableName = "product";
-            /* handle all events is not really necessary  
+            FiddlerApplication.AfterSessionComplete += FiddlerApplication_AfterSessionComplete;
+
             FiddlerApplication.OnNotification += delegate(object sender, NotificationEventArgs e) { Console.WriteLine("** NotifyUser: " + e.NotifyString); };
             FiddlerApplication.Log.OnLogString += delegate(object sender, Fiddler.LogEventArgs e) { Console.WriteLine("** LogString: " + e.LogString); };
-
             FiddlerApplication.BeforeRequest += (s) =>
             {
                 Console.WriteLine("Before request for:\t" + s.fullUrl);
@@ -42,12 +42,9 @@ namespace WebTester
             FiddlerApplication.BeforeResponse += (s) =>
             {
                 Console.WriteLine("{0}:HTTP {1} for {2}", s.id, s.responseCode, s.fullUrl);
-
-                // Uncomment the following to decompress/unchunk the HTTP response 
-                // s.utilDecodeResponse(); 
+                // Uncomment the following to decompress/unchunk the HTTP response
+                // s.utilDecodeResponse();
             };
-            */
-            FiddlerApplication.AfterSessionComplete += FiddlerApplication_AfterSessionComplete;
         }
 
         private void FiddlerApplication_AfterSessionComplete(Fiddler.Session fiddler_session)

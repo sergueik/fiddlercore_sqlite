@@ -492,13 +492,9 @@ namespace SQLite.Utils
         public void UpdateTableStructure(string targetTable, SQLiteTable newStructure)
         {
             newStructure.TableName = targetTable + "_temp";
-
             CreateTable(newStructure);
-
             CopyAllData(targetTable, newStructure.TableName);
-
             DropTable(targetTable);
-
             RenameTable(newStructure.TableName, targetTable);
         }
 
