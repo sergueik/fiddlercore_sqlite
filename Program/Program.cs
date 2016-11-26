@@ -38,7 +38,6 @@ namespace WebTester
                 // the response to the client as the response comes in.
                 s.bBufferResponse = true;
             };
-            //https://github.com/jimevans/WebDriverProxyExamples/blob/master/lib/FiddlerCore4.XML
             FiddlerApplication.BeforeResponse += (s) =>
             {
                 Console.WriteLine("{0}:HTTP {1} for {2}", s.id, s.responseCode, s.fullUrl);
@@ -81,10 +80,8 @@ namespace WebTester
             //{
             //    Console.Error.WriteLine(header_item.Name + " " + header_item.Value);
             //}
-
             Console.Error.WriteLine("Referer: " + referer);
 
-            // http://fiddler.wikidot.com/timers
             var timers = fiddler_session.Timers;
             TimeSpan duration = (TimeSpan)(timers.ClientDoneResponse - timers.ClientBeginRequest);
             Console.Error.WriteLine(String.Format("Duration: {0:F10}", duration.Milliseconds));
@@ -95,45 +92,35 @@ namespace WebTester
                 };
             insert(dic);
 
-            // https://groups.google.com/forum/#!msg/httpfiddler/RuFf5VzKCg0/wcgq-WeUnCoJ 
+            // https://groups.google.com/forum/#!msg/httpfiddler/RuFf5VzKCg0/wcgq-WeUnCoJ
             //// the following code does not work as intended: request body is always blank
             //string request_body = fiddler_session.GetRequestBodyAsString();
 
             //if (!string.IsNullOrEmpty(request_body))
             //{
-            //    // TODO: UrlDecode 
+            //    // TODO: UrlDecode
             //    Console.Error.WriteLine(string.Join(Environment.NewLine, request_body.Split(new char[] { '&' })));
             //}
         }
 
-        bool TestConnection()
-        {
+        bool TestConnection() {
             Console.WriteLine(String.Format("Testing database connection {0}...", database));
-            try
-            {
-                using (SQLiteConnection conn = new SQLiteConnection(dataSource))
-                {
+            try  {
+                using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
                     conn.Open();
                     conn.Close();
                 }
                 return true;
-            }
-
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Console.Error.WriteLine(ex.ToString());
                 return false;
             }
         }
 
-        public bool insert(Dictionary<string, object> dic)
-        {
-            try
-            {
-                using (SQLiteConnection conn = new SQLiteConnection(dataSource))
-                {
-                    using (SQLiteCommand cmd = new SQLiteCommand())
-                    {
+        public bool insert(Dictionary<string, object> dic) {
+            try {
+                using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
+                    using (SQLiteCommand cmd = new SQLiteCommand()) {
                         cmd.Connection = conn;
                         conn.Open();
                         SQLiteHelper sh = new SQLiteHelper(cmd);
@@ -142,20 +129,15 @@ namespace WebTester
                         return true;
                     }
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Console.Error.WriteLine(ex.ToString());
                 return false;
             }
         }
 
-        public void createTable()
-        {
-            using (SQLiteConnection conn = new SQLiteConnection(dataSource))
-            {
-                using (SQLiteCommand cmd = new SQLiteCommand())
-                {
+        public void createTable() {
+            using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
+                using (SQLiteCommand cmd = new SQLiteCommand()) {
                     cmd.Connection = conn;
                     conn.Open();
                     SQLiteHelper sh = new SQLiteHelper(cmd);
@@ -173,18 +155,15 @@ namespace WebTester
             }
         }
 
-        public void Start()
-        {
+        public void Start() {
             Console.WriteLine("Starting FiddlerCore...");
             dataFolderPath = Directory.GetCurrentDirectory();
             database = String.Format("{0}\\fiddler-data.db", dataFolderPath);
             dataSource = "data source=" + database;
             tableName = "product";
 
-            // http://stackoverflow.com/questions/24969198/how-do-i-get-fiddlercore-programmatic-certificate-installation-to-stick
-            // http://weblog.west-wind.com/posts/2014/Jul/29/Using-FiddlerCore-to-capture-HTTP-Requests-with-NET
             TestConnection();
-            // TODO: 
+            // TODO:
             // http://dynamicjson.codeplex.com/
             createTable();
             int open_port = get_open_port();
@@ -199,9 +178,9 @@ namespace WebTester
             // FiddlerApplication.Prefs.SetBoolPref("fiddler.network.streaming.abortifclientaborts", true);//Abort session when client abort
 
             // https://github.com/rkprajapat/webtester/blob/master/FiddlerCoreAPI/FiddlerCore.chm
-            // discourages the following            
+            // discourages the following
             // FiddlerApplication.Startup(open_port, /* Register As System Proxy */ true, /* Decrypt SSL */ true);
-            // in favour of 
+            // in favour of
             FiddlerApplication.Startup(open_port,
                                        FiddlerCoreStartupFlags.CaptureLocalhostTraffic |
                                        FiddlerCoreStartupFlags.RegisterAsSystemProxy |
@@ -222,28 +201,21 @@ namespace WebTester
             Console.WriteLine("Hit CTRL+C to end session.");
         }
 
-        private int get_open_port()
-        {
-            try
-            {
+        private int get_open_port() {
+            try  {
                 Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 sock.Bind(new IPEndPoint(IPAddress.Any, 0));
                 int port = ((IPEndPoint)sock.LocalEndPoint).Port;
                 sock.Dispose();
                 return port;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Console.Error.WriteLine(ex.Message);
                 return 0;
             }
         }
 
-
-
         // TODO : extract cookies
-        private void extract_headers_basic(string raw_text)
-        {
+        private void extract_headers_basic(string raw_text) {
 
             string header_name_regexp = @"(?<header_name>[^ ]+):";
             string header_value_regexp = @"(?<header_value>.+)\r\n";
@@ -251,15 +223,13 @@ namespace WebTester
             MatchCollection myMatchCollection =
               Regex.Matches(raw_text, header_name_regexp + header_value_regexp);
 
-            foreach (Match myMatch in myMatchCollection)
-            {
+            foreach (Match myMatch in myMatchCollection) {
                 Console.Error.WriteLine(String.Format("Header name = [{0}]", myMatch.Groups["header_name"]));
                 Console.Error.WriteLine(String.Format("Data = [{0}]", myMatch.Groups["header_value"]));
             }
         }
 
-        public void Stop()
-        {
+        public void Stop() {
             Console.WriteLine("Shutdown.");
             FiddlerApplication.AfterSessionComplete -= FiddlerApplication_AfterSessionComplete;
             if (FiddlerApplication.IsStarted())
@@ -269,23 +239,20 @@ namespace WebTester
 
         public static Monitor proxy;
 
-        // Not necessary if embedded in Powershell  
-        public static void Main(string[] args)
-        {
+        // Not necessary if embedded in Powershell
+        public static void Main(string[] args) {
             proxy = new Monitor();
             #region AttachEventListeners
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
             #endregion AttachEventListeners
             proxy.Start();
             Object forever = new Object();
-            lock (forever)
-            {
+            lock (forever) {
                 System.Threading.Monitor.Wait(forever);
             }
         }
 
-        static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
-        {
+        static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
             Console.WriteLine("Stop.");
             proxy.Stop();
             System.Threading.Thread.Sleep(1);
