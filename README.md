@@ -21,7 +21,7 @@ and merge `nuget.config` with yours. This will provide delegate to
 
 are stored in the SQLite database `fiddler-data.db` for measuring page performance at the individual Page element level.
 
-![SQLite database capture](https://raw.githubusercontent.com/sergueik/fiddlercore_sqlite/master/screenshots/capture1.png)
+![SQLite database capture](https://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture1.png)
 
 The `duration` is computed from [Fiddler session timers](http://fiddler.wikidot.com/timers) as
 ```c#
@@ -35,10 +35,19 @@ The `OnNotification`, `BeforeRequest` and `BeforeResponse`
 A replica of [SQLite Helper (C#) project sources](http://sh.codeplex.com) is included as the `Sqlite.Utils` namespace (Utils directory).
 This provides low-level, non-LINQ access to SQL database API.
 
+### Bugs
+If the FiddlerCore proxy stops abnormally, there might be a 'Use a proxy server for your LAN' setting remining in the registry:
+![LAN setting](https://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture2.png)
+```
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings]
+"ProxyEnable"=dword:00000001
+```
+
 ### References
 * [FiddlerCore API](https://github.com/rkprajapat/webtester/blob/master/FiddlerCoreAPI/FiddlerCore.chm)
-* [Using FiddlerCore to capture HTTP Requests with .NET](http://weblog.west-wind.com/posts/2014/Jul/29/Using-FiddlerCore-to-capture-HTTP-Requests-with-NET)
+* [Using FiddlerCore to capture HTTP Requests with .NET](https://weblog.west-wind.com/posts/2014/jul/29/using-fiddlercore-to-capture-http-requests-with-net)
 * [FiddlerCore dealing with Certificates](http://stackoverflow.com/questions/24969198/how-do-i-get-fiddlercore-programmatic-certificate-installation-to-stick)
+* [Tanium](https://github.com/justcoding121/Titanium-Web-Proxy) - a leightweight web proxy FiddlerCore alternative.
 
 ### Note
 The [browsermob-proxy](https://github.com/lightbody/browsermob-proxy) offers similar functionality for Java - see e.g. [http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html][http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html]

@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Win32;
 
 namespace WebTester
 {
@@ -232,8 +233,9 @@ namespace WebTester
         public void Stop() {
             Console.WriteLine("Shutdown.");
             FiddlerApplication.AfterSessionComplete -= FiddlerApplication_AfterSessionComplete;
-            if (FiddlerApplication.IsStarted())
+            if (FiddlerApplication.IsStarted()){
                 FiddlerApplication.Shutdown();
+            }            
             System.Threading.Thread.Sleep(1);
         }
 
@@ -256,6 +258,11 @@ namespace WebTester
             Console.WriteLine("Stop.");
             proxy.Stop();
             System.Threading.Thread.Sleep(1);
+            RegistryKey myKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Internet Settings", true);
+			if(myKey != null) {
+			   myKey.SetValue("ProxyEnable", 0, RegistryValueKind.DWord);
+			}
+			myKey.Close();
         }
     }
 }
