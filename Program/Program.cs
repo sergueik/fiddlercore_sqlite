@@ -12,63 +12,69 @@ using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
 
-namespace WebTester
-{
-    public class Monitor
-    {
+namespace WebTester {
+
+    public class Monitor {
         private string tableName = "";
         private string dataFolderPath;
         private string database;
         private string dataSource;
-        public Monitor()
-        {
+
+        public Monitor() {
             dataFolderPath = Directory.GetCurrentDirectory();
             database = String.Format("{0}\\data.db", dataFolderPath);
             dataSource = "data source=" + database;
             tableName = "product";
             FiddlerApplication.AfterSessionComplete += FiddlerApplication_AfterSessionComplete;
-
-            FiddlerApplication.OnNotification += delegate(object sender, NotificationEventArgs e) { Console.WriteLine("** NotifyUser: " + e.NotifyString); };
-            FiddlerApplication.Log.OnLogString += delegate(object sender, Fiddler.LogEventArgs e) { Console.WriteLine("** LogString: " + e.LogString); };
-            FiddlerApplication.BeforeRequest += (s) =>
-            {
-                Console.WriteLine("Before request for:\t" + s.fullUrl);
-                // In order to enable response tampering, buffering mode must
-                // be enabled; this allows FiddlerCore to permit modification of
-                // the response in the BeforeResponse handler rather than streaming
-                // the response to the client as the response comes in.
-                s.bBufferResponse = true;
-            };
-            FiddlerApplication.BeforeResponse += (s) =>
-            {
-                Console.WriteLine("{0}:HTTP {1} for {2}", s.id, s.responseCode, s.fullUrl);
-                // Uncomment the following to decompress/unchunk the HTTP response
-                // s.utilDecodeResponse();
-            };
+            FiddlerApplication.OnNotification += FiddlerApplication_OnNotification;
+            FiddlerApplication.Log.OnLogString += FiddlerApplication_OnLogString;
+            FiddlerApplication.BeforeRequest += FiddlerApplication_BeforeRequest;
+            FiddlerApplication.BeforeResponse += FiddlerApplication_BeforeResponse;
         }
 
-        private void FiddlerApplication_AfterSessionComplete(Fiddler.Session fiddler_session)
-        {
+        private void FiddlerApplication_BeforeResponse(Session session) {
+            Console.WriteLine("{0}:HTTP {1} for {2}", session.id, session.responseCode, session.fullUrl);
+            // Uncomment the following to decompress/unchunk the HTTP response
+            // s.utilDecodeResponse();
+        }
+
+        private void FiddlerApplication_BeforeRequest(Session session) {
+            Console.WriteLine("Before request for:\t" + session.fullUrl);
+            // In order to enable response tampering, buffering mode must
+            // be enabled; this allows FiddlerCore to permit modification of
+            // the response in the BeforeResponse handler rather than streaming
+            // the response to the client as the response comes in.
+            session.bBufferResponse = true;
+        }
+
+
+        private void FiddlerApplication_OnNotification(object sender, NotificationEventArgs e) {
+            Console.WriteLine("** NotifyUser: " + e.NotifyString);
+        }
+
+        private void FiddlerApplication_OnLogString(object sender, Fiddler.LogEventArgs e) {
+            Console.WriteLine("** LogString: " + e.LogString);
+        }
+
+        private void FiddlerApplication_AfterSessionComplete(Session session) {
             // Ignore HTTPS connect requests
-            if (fiddler_session.RequestMethod == "CONNECT")
+            if (session.RequestMethod == "CONNECT")
                 return;
 
-            if (fiddler_session == null || fiddler_session.oRequest == null || fiddler_session.oRequest.headers == null)
+            if (session == null || session.oRequest == null || session.oRequest.headers == null)
                 return;
 
-            var full_url = fiddler_session.fullUrl;
+            var full_url = session.fullUrl;
             Console.WriteLine("URL: " + full_url);
 
-            HTTPRequestHeaders request_headers = fiddler_session.RequestHeaders;
-            HTTPResponseHeaders response_headers = fiddler_session.ResponseHeaders;
+            HTTPRequestHeaders request_headers = session.RequestHeaders;
+            HTTPResponseHeaders response_headers = session.ResponseHeaders;
             int http_response_code = response_headers.HTTPResponseCode;
             Console.WriteLine("HTTP Response: " + http_response_code.ToString());
 
             string referer = null;
-            Dictionary<String, HTTPHeaderItem> request_headers_dictionary =
-             request_headers.ToDictionary(p => p.Name);
-            if (request_headers_dictionary.ContainsKey("Referer"))
-            {
+            Dictionary<String, HTTPHeaderItem> request_headers_dictionary = request_headers.ToDictionary(p => p.Name);
+            if (request_headers_dictionary.ContainsKey("Referer")) {
                 referer = request_headers_dictionary["Referer"].Value;
             }
 
@@ -83,10 +89,10 @@ namespace WebTester
             //}
             Console.Error.WriteLine("Referer: " + referer);
 
-            var timers = fiddler_session.Timers;
+            var timers = session.Timers;
             TimeSpan duration = (TimeSpan)(timers.ClientDoneResponse - timers.ClientBeginRequest);
             Console.Error.WriteLine(String.Format("Duration: {0:F10}", duration.Milliseconds));
-            var dic = new Dictionary<string, object>(){
+            var dic = new Dictionary<string, object>() {
                 	{"url" ,full_url}, {"status", http_response_code},
                 	{"duration", duration.Milliseconds },
                 	{"referer", referer }
@@ -95,7 +101,7 @@ namespace WebTester
 
             // https://groups.google.com/forum/#!msg/httpfiddler/RuFf5VzKCg0/wcgq-WeUnCoJ
             //// the following code does not work as intended: request body is always blank
-            //string request_body = fiddler_session.GetRequestBodyAsString();
+            //string request_body = session.GetRequestBodyAsString();
 
             //if (!string.IsNullOrEmpty(request_body))
             //{
@@ -231,17 +237,29 @@ namespace WebTester
         }
 
         public void Stop() {
-            Console.WriteLine("Shutdown.");
+            Console.WriteLine("Shut down Fiddler Application.");
             FiddlerApplication.AfterSessionComplete -= FiddlerApplication_AfterSessionComplete;
+            // explicitly unsubscribe dangling events
+            FiddlerApplication.OnNotification -= FiddlerApplication_OnNotification;
+            FiddlerApplication.Log.OnLogString -= FiddlerApplication_OnLogString;
+            FiddlerApplication.BeforeRequest -= FiddlerApplication_BeforeRequest;
+            FiddlerApplication.BeforeResponse -= FiddlerApplication_BeforeResponse;
+            // alternative cleanup ?
+            // http://stackoverflow.com/questions/91778/how-to-remove-all-event-handlers-from-a-control
+            FiddlerApplication.OnNotification += delegate(object sender, NotificationEventArgs e) { };
+            FiddlerApplication.Log.OnLogString += delegate(object sender, Fiddler.LogEventArgs e) { };
+            FiddlerApplication.BeforeRequest += delegate { };
+            FiddlerApplication.BeforeResponse += delegate { };
+            // https://bytes.com/topic/c-sharp/answers/274921-removing-all-event-handlers
             if (FiddlerApplication.IsStarted()){
                 FiddlerApplication.Shutdown();
-            }            
+            }
             System.Threading.Thread.Sleep(1);
         }
 
         public static Monitor proxy;
 
-        // Not necessary if embedded in Powershell
+        // Not necessary when Fidddler Core is called from Powershell
         public static void Main(string[] args) {
             proxy = new Monitor();
             #region AttachEventListeners
@@ -259,10 +277,10 @@ namespace WebTester
             proxy.Stop();
             System.Threading.Thread.Sleep(1);
             RegistryKey myKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Internet Settings", true);
-			if(myKey != null) {
-			   myKey.SetValue("ProxyEnable", 0, RegistryValueKind.DWord);
-			}
-			myKey.Close();
+            if(myKey != null) {
+               myKey.SetValue("ProxyEnable", 0, RegistryValueKind.DWord);
+            }
+            myKey.Close();
         }
     }
 }
