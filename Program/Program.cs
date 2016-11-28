@@ -9,12 +9,13 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Net;
 using System.Text.RegularExpressions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
 
 namespace WebTester {
 
     public class Monitor {
+
+        public static Monitor proxy;
         private string tableName = "";
         private string dataFolderPath;
         private string database;
@@ -25,13 +26,15 @@ namespace WebTester {
             database = String.Format("{0}\\data.db", dataFolderPath);
             dataSource = "data source=" + database;
             tableName = "product";
+            #region Subscribe Event Handlers
             FiddlerApplication.AfterSessionComplete += FiddlerApplication_AfterSessionComplete;
             FiddlerApplication.OnNotification += FiddlerApplication_OnNotification;
             FiddlerApplication.Log.OnLogString += FiddlerApplication_OnLogString;
             FiddlerApplication.BeforeRequest += FiddlerApplication_BeforeRequest;
             FiddlerApplication.BeforeResponse += FiddlerApplication_BeforeResponse;
+	        #endregion
         }
-
+	    #region Event Handlers
         private void FiddlerApplication_BeforeResponse(Session session) {
             Console.WriteLine("{0}:HTTP {1} for {2}", session.id, session.responseCode, session.fullUrl);
             // Uncomment the following to decompress/unchunk the HTTP response
@@ -109,7 +112,8 @@ namespace WebTester {
             //    Console.Error.WriteLine(string.Join(Environment.NewLine, request_body.Split(new char[] { '&' })));
             //}
         }
-
+		#endregion
+        #region DB Helpers
         bool TestConnection() {
             Console.WriteLine(String.Format("Testing database connection {0}...", database));
             try  {
@@ -161,8 +165,9 @@ namespace WebTester {
                 }
             }
         }
+		#endregion
 
-        public void Start() {
+		public void Start() {
             Console.WriteLine("Starting FiddlerCore...");
             dataFolderPath = Directory.GetCurrentDirectory();
             database = String.Format("{0}\\fiddler-data.db", dataFolderPath);
@@ -173,7 +178,7 @@ namespace WebTester {
             // TODO:
             // http://dynamicjson.codeplex.com/
             createTable();
-            int open_port = get_open_port();
+            int open_port = getAvailablePort();
             // allow connections to HTTPS sites w/invalid certificates
             Fiddler.CONFIG.IgnoreServerCertErrors = true;
 
@@ -208,8 +213,8 @@ namespace WebTester {
             Console.WriteLine("Hit CTRL+C to end session.");
         }
 
-        private int get_open_port() {
-            try  {
+        private int getAvailablePort() {
+            try {
                 Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 sock.Bind(new IPEndPoint(IPAddress.Any, 0));
                 int port = ((IPEndPoint)sock.LocalEndPoint).Port;
@@ -223,10 +228,8 @@ namespace WebTester {
 
         // TODO : extract cookies
         private void extract_headers_basic(string raw_text) {
-
             string header_name_regexp = @"(?<header_name>[^ ]+):";
             string header_value_regexp = @"(?<header_value>.+)\r\n";
-
             MatchCollection myMatchCollection =
               Regex.Matches(raw_text, header_name_regexp + header_value_regexp);
 
@@ -238,6 +241,7 @@ namespace WebTester {
 
         public void Stop() {
             Console.WriteLine("Shut down Fiddler Application.");
+            #region Unsubscribe Event handlers            
             FiddlerApplication.AfterSessionComplete -= FiddlerApplication_AfterSessionComplete;
             // explicitly unsubscribe dangling events
             FiddlerApplication.OnNotification -= FiddlerApplication_OnNotification;
@@ -251,20 +255,19 @@ namespace WebTester {
             FiddlerApplication.BeforeRequest += delegate { };
             FiddlerApplication.BeforeResponse += delegate { };
             // https://bytes.com/topic/c-sharp/answers/274921-removing-all-event-handlers
+	        #endregion
             if (FiddlerApplication.IsStarted()){
                 FiddlerApplication.Shutdown();
             }
             System.Threading.Thread.Sleep(1);
         }
 
-        public static Monitor proxy;
-
         // Not necessary when Fidddler Core is called from Powershell
         public static void Main(string[] args) {
             proxy = new Monitor();
-            #region AttachEventListeners
+            #region Subscribe Event Handlers
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
-            #endregion AttachEventListeners
+            #endregion
             proxy.Start();
             Object forever = new Object();
             lock (forever) {
@@ -272,6 +275,7 @@ namespace WebTester {
             }
         }
 
+        #region Event Handlers
         static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
             Console.WriteLine("Stop.");
             proxy.Stop();
@@ -282,5 +286,7 @@ namespace WebTester {
             }
             myKey.Close();
         }
+        #endregion
+
     }
 }
