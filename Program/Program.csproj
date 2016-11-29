@@ -68,6 +68,9 @@
     <Reference Include="FiddlerCore4">
       <HintPath>..\packages\FiddlerCore.4.6.2.0\lib\net40\FiddlerCore4.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="SQLiteHelper">
       <HintPath>..\Utils\bin\Debug\SQLiteHelper.dll</HintPath>
     </Reference>
@@ -81,6 +84,9 @@
     <Reference Include="System.Xml" />
     <Reference Include="WebDriver">
       <HintPath>..\packages\Selenium.WebDriver.2.53.1\lib\net40\WebDriver.dll</HintPath>
+    </Reference>
+    <Reference Include="WebDriver.Support">
+      <HintPath>..\..\titanium_sqlite\packages\Selenium.Support.2.53.1\lib\net40\WebDriver.Support.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

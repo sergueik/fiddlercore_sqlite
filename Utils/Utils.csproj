@@ -63,7 +63,6 @@
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.103\build\net40\x86\SQLite.Interop.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Collections" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite">

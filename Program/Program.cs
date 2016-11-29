@@ -1,15 +1,29 @@
 using Fiddler;
 
+using Microsoft.Win32;
+
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
-using SQLite.Utils;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using Microsoft.Win32;
+using SQLite.Utils;
+
+using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
+
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.IE;
+using OpenQA.Selenium.PhantomJS;
+using OpenQA.Selenium.Remote;
+using OpenQA.Selenium.Support.UI;
+
 
 namespace WebTester {
 
@@ -167,7 +181,7 @@ namespace WebTester {
         }
 		#endregion
 
-		public void Start() {
+        public void Start() {
             Console.WriteLine("Starting FiddlerCore...");
             dataFolderPath = Directory.GetCurrentDirectory();
             database = String.Format("{0}\\fiddler-data.db", dataFolderPath);
@@ -203,14 +217,20 @@ namespace WebTester {
             int fiddler_listen_port = Fiddler.FiddlerApplication.oProxy.ListenPort;
 
             Console.WriteLine("Fiddler starting on port " + fiddler_listen_port);
+            #region Firefox-specific
             // Usage:
-            // var profile = new FirefoxProfile();
-            // profile.SetProxyPreferences(new Proxy { HttpProxy = String.Format("localhost:{0}",fiddler_listen_port), SslProxy = String.Format("localhost:{0}",fiddler_listen_port)});
-            // var selenium = new FirefoxDriver(profile);
-            // .SetProxyInProcess("127.0.0.1:" + port.ToString(), "<-loopback>");
+            var profile = new FirefoxProfile();
 
-            // Wait  for the user to stop
-            Console.WriteLine("Hit CTRL+C to end session.");
+            profile.SetProxyPreferences(new OpenQA.Selenium.Proxy { HttpProxy = String.Format("localhost:{0}", fiddler_listen_port), SslProxy = String.Format("localhost:{0}", fiddler_listen_port) });
+            profile.SetPreference("network.automatic-ntlm-auth.trusted-uris", "http://,https://");
+            profile.SetPreference("network.automatic-ntlm-auth.allow-non-fqdn", true);
+            profile.SetPreference("network.negotiate-auth.delegation-uris", "http://,https://");
+            profile.SetPreference("network.negotiate-auth.trusted-uris", "http://,https://");
+            profile.SetPreference("network.http.phishy-userpass-length", 255);
+            profile.SetPreference("security.csp.enable", false);
+            var selenium = new FirefoxDriver(profile);
+            // .SetProxyInProcess("127.0.0.1:" + port.ToString(), "<-loopback>");
+            #endregion
         }
 
         private int getAvailablePort() {
@@ -227,21 +247,16 @@ namespace WebTester {
         }
 
         // TODO : extract cookies
-        private void extract_headers_basic(string raw_text) {
-            string header_name_regexp = @"(?<header_name>[^ ]+):";
-            string header_value_regexp = @"(?<header_value>.+)\r\n";
-            MatchCollection myMatchCollection =
-              Regex.Matches(raw_text, header_name_regexp + header_value_regexp);
-
-            foreach (Match myMatch in myMatchCollection) {
-                Console.Error.WriteLine(String.Format("Header name = [{0}]", myMatch.Groups["header_name"]));
-                Console.Error.WriteLine(String.Format("Data = [{0}]", myMatch.Groups["header_value"]));
+        private void extract_headers_basic(string text) {
+            foreach (Match m in Regex.Matches(text, @"(?<name>[^ ]+):(?<value>.+)\r\n")) {
+                Console.Error.WriteLine(String.Format("Header name = [{0}]", m.Groups["name"]));
+                Console.Error.WriteLine(String.Format("Data = [{0}]", m.Groups["value"]));
             }
         }
 
         public void Stop() {
             Console.WriteLine("Shut down Fiddler Application.");
-            #region Unsubscribe Event handlers            
+            #region Unsubscribe Event handlers
             FiddlerApplication.AfterSessionComplete -= FiddlerApplication_AfterSessionComplete;
             // explicitly unsubscribe dangling events
             FiddlerApplication.OnNotification -= FiddlerApplication_OnNotification;
@@ -266,9 +281,11 @@ namespace WebTester {
         public static void Main(string[] args) {
             proxy = new Monitor();
             #region Subscribe Event Handlers
-            Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
+            NativeMethods.Handler = ConsoleEventCallback;
+            NativeMethods.SetConsoleCtrlHandler(NativeMethods.Handler, true);
             #endregion
             proxy.Start();
+            Console.WriteLine("Press CTRL-C to exit"); 
             Object forever = new Object();
             lock (forever) {
                 System.Threading.Monitor.Wait(forever);
@@ -276,17 +293,32 @@ namespace WebTester {
         }
 
         #region Event Handlers
-        static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
-            Console.WriteLine("Stop.");
-            proxy.Stop();
-            System.Threading.Thread.Sleep(1);
-            RegistryKey myKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Internet Settings", true);
-            if(myKey != null) {
-               myKey.SetValue("ProxyEnable", 0, RegistryValueKind.DWord);
+        // https://msdn.microsoft.com/en-us/library/windows/desktop/ms683242%28v=vs.85%29.aspx
+        private static bool ConsoleEventCallback(int eventType) {
+            try {
+	            proxy.Stop();
+	            System.Threading.Thread.Sleep(1);
+	            RegistryKey myKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Internet Settings", true);
+	            if(myKey != null) {
+	               myKey.SetValue("ProxyEnable", 0, RegistryValueKind.DWord);
+	            }
+	            myKey.Close();
+	        } catch {
+                // ignored
             }
-            myKey.Close();
+            return false;
         }
         #endregion
 
+	    #region Native Methods
+	    internal static class NativeMethods {
+	        // entry for GC
+	        internal static ConsoleEventDelegate Handler;
+	        [DllImport("kernel32.dll", SetLastError = true)]
+	        internal static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
+	        // p/invoke
+	        internal delegate bool ConsoleEventDelegate(int eventType);
+	    }
+	    #endregion
     }
 }
