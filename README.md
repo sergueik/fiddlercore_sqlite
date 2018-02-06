@@ -13,7 +13,7 @@ proxy.Stop();
 
 The `duration` is computed from [Fiddler session timers](http://fiddler.wikidot.com/timers) as
  
- ps://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture1.png)
+ ![SQLite database capture](https://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture1.png)
 
 The `duration` is computed from [Fiddler session timers](http://fiddler.wikidot.com/timers) as
 ```c#
