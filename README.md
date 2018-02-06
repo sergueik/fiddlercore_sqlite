@@ -9,15 +9,11 @@ proxy = new Monitor();
 proxy.Start();
 // your test case here
 proxy.Stop();
-```
-  
-and merge `nuget.config` with yours. This will provide delegate to
-`OnSessionComplete` event where selected headers
- * `id`
- * `url`
- * `referer`
- * `duration`
- * `status`ps://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture1.png)
+```  
+
+The `duration` is computed from [Fiddler session timers](http://fiddler.wikidot.com/timers) as
+ 
+ ps://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture1.png)
 
 The `duration` is computed from [Fiddler session timers](http://fiddler.wikidot.com/timers) as
 ```c#
@@ -41,9 +37,11 @@ If the FiddlerCore proxy stops abnormally, there might be a 'Use a proxy server 
 
 ### See Also  
 
-* Page load and performance metrics provided by Chrome: 
-  * [chrome_page_performance_sqlite .Net project](https://github.com/sergueik/chrome_page_performance_sqlite)
+Page load and performance metrics provided by Chrome
+
+  * [chrome_page_performance_sqlite .Net project](https://github.com/sergueik/chrome_page_performance_sqlite)
   * [chrome_page_performance_sqlite Java project](https://github.com/sergueik/selenium_java/tree/master/chrome_page_performance_sqlite)
+
 
 ### References
 * [FiddlerCore API](https://github.com/rkprajapat/webtester/blob/master/FiddlerCoreAPI/FiddlerCore.chm)
