@@ -9,19 +9,11 @@ proxy = new Monitor();
 proxy.Start();
 // your test case here
 proxy.Stop();
-```
-  
-and merge `nuget.config` with yours. This will provide delegate to
-`OnSessionComplete` event where selected headers
- * `id`
- * `url`
- * `referer`
- * `duration`
- * `status`
+```  
 
-are stored in the SQLite database `fiddler-data.db` for measuring page performance at the individual Page element level.
-
-![SQLite database capture](https://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture1.png)
+The `duration` is computed from [Fiddler session timers](http://fiddler.wikidot.com/timers) as
+ 
+ ![SQLite database capture](https://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture1.png)
 
 The `duration` is computed from [Fiddler session timers](http://fiddler.wikidot.com/timers) as
 ```c#
@@ -43,6 +35,14 @@ If the FiddlerCore proxy stops abnormally, there might be a 'Use a proxy server 
 "ProxyEnable"=dword:00000001
 ```
 
+### See Also  
+
+Page load and performance metrics provided by Chrome
+
+  * [chrome_page_performance_sqlite .Net project](https://github.com/sergueik/chrome_page_performance_sqlite)
+  * [chrome_page_performance_sqlite Java project](https://github.com/sergueik/selenium_java/tree/master/chrome_page_performance_sqlite)
+
+
 ### References
 * [FiddlerCore API](https://github.com/rkprajapat/webtester/blob/master/FiddlerCoreAPI/FiddlerCore.chm)
 * [Using FiddlerCore to capture HTTP Requests with .NET](https://weblog.west-wind.com/posts/2014/jul/29/using-fiddlercore-to-capture-http-requests-with-net)
@@ -50,6 +50,10 @@ If the FiddlerCore proxy stops abnormally, there might be a 'Use a proxy server 
 * [Titanium-Web-Proxy](https://github.com/justcoding121/Titanium-Web-Proxy) - a leightweight web proxy FiddlerCore alternative.
 * [Titanium SQLite](https://github.com/sergueik/titanium_sqlite)
 ### Note
+
+are stored in the SQLite database `fiddler-data.db` for measuring page performance at the individual Page element level.
+
+![SQLite database capture](htt
 The [browsermob-proxy](https://github.com/lightbody/browsermob-proxy) offers similar functionality for Java - see e.g. [http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html][http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html]
 
 ### Author
