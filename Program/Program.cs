@@ -246,6 +246,7 @@ namespace WebTester
 			#region Firefox-specific
 			// Usage:
 			FirefoxOptions options = new FirefoxOptions();
+			// TODO: detect browser application version
 			options.UseLegacyImplementation = true;
 			System.Environment.SetEnvironmentVariable("webdriver.gecko.driver", String.Format(@"{0}\geckodriver.exe", System.IO.Directory.GetCurrentDirectory()));
 			// TODO: System.ArgumentException: Preferences cannot be set directly when using the legacy FirefoxDriver implementation. Set them in the profile.
@@ -266,10 +267,19 @@ namespace WebTester
 
 			// TODO:  'OpenQA.Selenium.Firefox.FirefoxProfile.SetProxyPreferences(OpenQA.Selenium.Proxy)' is obsolete:
 			// 'Use the FirefoxOptions class to set a proxy for Firefox.'
-			profile.SetProxyPreferences(new OpenQA.Selenium.Proxy {
-				HttpProxy = String.Format("localhost:{0}", fiddler_listen_port),
-				SslProxy = String.Format("localhost:{0}", fiddler_listen_port)
-			});
+						
+			// Configure proxy
+			profile.SetPreference("network.proxy.type", 1);
+			profile.SetPreference("network.proxy.http", "localhost");
+			profile.SetPreference("network.proxy.http_port", fiddler_listen_port);
+			profile.SetPreference("network.proxy.ssl", "localhost");
+			profile.SetPreference("network.proxy.ssl_port", fiddler_listen_port);
+			profile.SetPreference("network.proxy.socks", "localhost");
+			profile.SetPreference("network.proxy.socks_port", fiddler_listen_port);
+			profile.SetPreference("network.proxy.ftp", "localhost");
+			profile.SetPreference("network.proxy.ftp_port", fiddler_listen_port);
+			profile.SetPreference("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
+
 			options.Profile = profile;
             
 			var selenium = new FirefoxDriver(options);
