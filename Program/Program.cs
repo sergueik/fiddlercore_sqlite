@@ -222,7 +222,7 @@ namespace WebTester
 			// allow connections to HTTPS sites w/invalid certificates
 			Fiddler.CONFIG.IgnoreServerCertErrors = true;
 
-			// To decrypt HTTPS traffic, makecert.exe mus be present
+			// To decrypt HTTPS traffic, makecert.exe must be present
 			// TODO: read HKEY_CURRENT_USER\Software\Telerik\FiddlerCoreAPI
 			// or rely on nuget to install
 			// or define the MakeCert.exe path manually.
@@ -267,7 +267,8 @@ namespace WebTester
 
 			// TODO:  'OpenQA.Selenium.Firefox.FirefoxProfile.SetProxyPreferences(OpenQA.Selenium.Proxy)' is obsolete:
 			// 'Use the FirefoxOptions class to set a proxy for Firefox.'
-						
+			// https://gist.github.com/temyers/e3246d666a27c59db04a
+			// https://gist.github.com/temyers/e3246d666a27c59db04a			
 			// Configure proxy
 			profile.SetPreference("network.proxy.type", 1);
 			profile.SetPreference("network.proxy.http", "localhost");
