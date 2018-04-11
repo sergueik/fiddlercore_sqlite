@@ -56,5 +56,9 @@ are stored in the SQLite database `fiddler-data.db` for measuring page performan
 ![SQLite database capture](htt
 The [browsermob-proxy](https://github.com/lightbody/browsermob-proxy) offers similar functionality for Java - see e.g. [http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html][http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html]
 
+### Change History
+
+  * version 1.1.x.x of the assembly is compiled with .net 4.5. NOTE: app still configured to runn on .net 4.0
+  * version 1.0.x.x is compiled with .net 4.0
 ### Author
 [Serguei Kouzmine](kouzmine_serguei@yahoo.com)
