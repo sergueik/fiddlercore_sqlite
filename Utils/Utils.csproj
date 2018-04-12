@@ -86,7 +86,6 @@ The module was expected to contain an assembly manifest.
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MultipartFormDataDownloader.cs" />
     <Compile Include="SQLiteColumn.cs" />
     <Compile Include="SQLiteColumnList.cs" />
     <Compile Include="SQLiteHelper.cs" />
