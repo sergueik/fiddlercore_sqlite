@@ -24,10 +24,10 @@ using OpenQA.Selenium.PhantomJS;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 
+using System.Diagnostics;
 
 namespace WebTester
 {
-
 	public class Monitor
 	{
 
@@ -208,7 +208,16 @@ namespace WebTester
 
 		public void Start()
 		{
-			Console.WriteLine("Starting FiddlerCore...");
+			
+			Console.WriteLine("Starting application...");
+
+			// https://www.codeproject.com/Articles/1214209/Selenium-Series-Part-Killing-Laying-Around-Browser
+			Console.WriteLine("Terminating runaway selenium drivers...");
+			Process.GetProcessesByName("IEDriverServer").ToList().ForEach(p => p.Kill());
+			Process.GetProcessesByName("chromedriver").ToList().ForEach(p => p.Kill());
+			Process.GetProcessesByName("geckodriver").ToList().ForEach(p => p.Kill());
+
+			Console.WriteLine("Starting Database connection...");
 			// dataFolderPath = Directory.GetCurrentDirectory();
 			database = String.Format(@"{0}\{1}", dataFolderPath, databaseName);
 			dataSource = "data source=" + database;
@@ -233,6 +242,8 @@ namespace WebTester
 			// discourages the following
 			// FiddlerApplication.Startup(open_port, /* Register As System Proxy */ true, /* Decrypt SSL */ true);
 			// in favour of
+			
+			
 			FiddlerApplication.Startup(open_port,
 				FiddlerCoreStartupFlags.CaptureLocalhostTraffic |
 				FiddlerCoreStartupFlags.RegisterAsSystemProxy |
