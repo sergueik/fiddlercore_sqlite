@@ -85,9 +85,6 @@
     <Reference Include="WebDriver">
       <HintPath>..\packages\Selenium.WebDriver.3.8.0\lib\net45\WebDriver.dll</HintPath>
     </Reference>
-    <Reference Include="WebDriver.Support">
-      <HintPath>..\..\titanium_sqlite\packages\Selenium.Support.3.8.0\lib\net45\WebDriver.Support.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\packages\WebDriver.IEDriverServer.win32.3.8.0\content\IEDriverServer.exe">
