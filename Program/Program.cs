@@ -21,6 +21,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
 using OpenQA.Selenium.PhantomJS;
+using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 
@@ -47,10 +48,7 @@ namespace WebTester
 			get { return dataFolderPath; }
 			set { dataFolderPath = value; }
 		}
-
-
-
-        
+   
 		public Monitor()
 		{
 			// dataFolderPath = Directory.GetCurrentDirectory();
@@ -256,9 +254,9 @@ namespace WebTester
 			Console.WriteLine("Fiddler starting on port " + fiddler_listen_port);
 			#region Firefox-specific
 			// Usage:
-			FirefoxOptions options = new FirefoxOptions();
+			FirefoxOptions firefoxOptions = new FirefoxOptions();
 			// TODO: detect browser application version
-			options.UseLegacyImplementation = true;
+			firefoxOptions.UseLegacyImplementation = true;
 			System.Environment.SetEnvironmentVariable("webdriver.gecko.driver", String.Format(@"{0}\geckodriver.exe", System.IO.Directory.GetCurrentDirectory()));
 			// TODO: System.ArgumentException: Preferences cannot be set directly when using the legacy FirefoxDriver implementation. Set them in the profile.
 			// options.SetPreference("network.automatic-ntlm-auth.trusted-uris", "http://,https://");
@@ -292,9 +290,32 @@ namespace WebTester
 			profile.SetPreference("network.proxy.ftp_port", fiddler_listen_port);
 			profile.SetPreference("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
 
-			options.Profile = profile;
+			firefoxOptions.Profile = profile;
             
-			var selenium = new FirefoxDriver(options);
+			var selenium = new FirefoxDriver(firefoxOptions);
+			selenium.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(5);
+			#endregion
+			#region Edge-specific
+			Boolean useEdge = false;
+			if (useEdge) {
+				RemoteWebDriver driver = null;
+				try {
+					// location for MicrosoftWebDriver.exe
+					string serverPath = System.IO.Directory.GetCurrentDirectory();
+					EdgeOptions edgeOptions = new EdgeOptions();
+					System.Environment.SetEnvironmentVariable("webdriver.edge.driver", String.Format(@"{0}\MicrosoftWebDriver.exe", serverPath));
+					edgeOptions.PageLoadStrategy = (PageLoadStrategy)EdgePageLoadStrategy.Eager;
+					driver = new EdgeDriver(serverPath, edgeOptions);
+					// Set page load timeout to 5 seconds
+					driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(5);
+				} catch (Exception e) { 
+					Console.WriteLine(e.Message); 
+				} finally { 
+					if (driver != null) { 
+						driver.Quit(); 
+					} 
+				} 
+			}
 			#endregion
 		}
 
