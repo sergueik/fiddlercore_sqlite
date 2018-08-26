@@ -1,4 +1,4 @@
-### FiddlerCore Page Performance Collector with SQLite database
+﻿### FiddlerCore Page Performance Collector with SQLite database
 Collect details of the web navigation by establishing the proxy with the help of [FiddlerCore API](http://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCoQFjAAahUKEwjAjsXr44XGAhUCz4AKHa-LAKA&url=http%3A%2F%2Fwww.telerik.com%2Ffiddler%2Ffiddlercore&ei=IYV4VYD6OYKegwSvl4KACg&usg=AFQjCNFytjHPn-EXeXR3Vr-LT-syJw-huw&bvm=bv.95277229,d.eXY)
 for the duration of the execution of the test.
 
@@ -51,11 +51,29 @@ Page load and performance metrics provided by Chrome
 * [Titanium SQLite](https://github.com/sergueik/titanium_sqlite)
 ### Note
 
+Traffic details
 are stored in the SQLite database `fiddler-data.db` for measuring page performance at the individual Page element level.
 
 ![SQLite database capture](htt
 The [browsermob-proxy](https://github.com/lightbody/browsermob-proxy) offers similar functionality for Java - see e.g. [http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html][http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html]
 
+
+### Note
+
+Telerik has recently unlisted the FiddlerCore nuget package from https://www.nuget.org/. Registration on https://www.telerik.com is required or download
+https://www.telerik.com/fiddler/fiddlercore - only Personal & Educational use is free. The version numbering scheme is different now: latest available version
+of FiddlerCore nuget packages is 1.2018.1.13826-beta. The fllowing packages are available there:
+
+```
+FiddlerCore.1.20181.13826-beta.nupkg
+FiddlerCore.API.1.20181.13826-beta.nupkg
+FiddlerCore.PlatformExtensions.1.20181.13826-beta.nupkg
+FiddlerCore.PlatformExtensions.Linux.1.20181.13826-beta.nupkg
+FiddlerCore.PlatformExtensions.Mac.1.20181.13826-beta.nupkg
+FiddlerCore.PlatformExtensions.Windows.1.20181.13826-beta.nupkg
+FiddlerCore.Utilities.1.20181.13826-beta.nupkg
+```
+It appears, only .Net Standard 2.0 is supported by these.
 ### Change History
 
   * version 1.1.x.x of the assembly is compiled with .net 4.5. NOTE: app still configured to runn on .net 4.0
