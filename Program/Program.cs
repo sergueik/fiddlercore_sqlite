@@ -20,18 +20,16 @@ using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
-using OpenQA.Selenium.PhantomJS;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 
 using System.Diagnostics;
 
-namespace WebTester
-{
-	public class Monitor
-	{
+namespace WebTester {
+	public class Monitor {
 
+		const Boolean useEdge = false;
 		public static Monitor proxy;
 		private string tableName = "";
 		private string database;
@@ -49,8 +47,7 @@ namespace WebTester
 			set { dataFolderPath = value; }
 		}
    
-		public Monitor()
-		{
+		public Monitor() {
 			// dataFolderPath = Directory.GetCurrentDirectory();
 			database = String.Format(@"{0}\{1}", dataFolderPath, databaseName);
 			dataSource = "data source=" + database;
@@ -64,15 +61,13 @@ namespace WebTester
 			#endregion
 		}
 		#region Event Handlers
-		private void FiddlerApplication_BeforeResponse(Session session)
-		{
+		private void FiddlerApplication_BeforeResponse(Session session) {
 			Console.WriteLine("{0}:HTTP {1} for {2}", session.id, session.responseCode, session.fullUrl);
 			// Uncomment the following to decompress/unchunk the HTTP response
 			// s.utilDecodeResponse();
 		}
 
-		private void FiddlerApplication_BeforeRequest(Session session)
-		{
+		private void FiddlerApplication_BeforeRequest(Session session) {
 			Console.WriteLine("Before request for:\t" + session.fullUrl);
 			// In order to enable response tampering, buffering mode must
 			// be enabled; this allows FiddlerCore to permit modification of
@@ -82,18 +77,15 @@ namespace WebTester
 		}
 
 
-		private void FiddlerApplication_OnNotification(object sender, NotificationEventArgs e)
-		{
+		private void FiddlerApplication_OnNotification(object sender, NotificationEventArgs e) {
 			Console.WriteLine("** NotifyUser: " + e.NotifyString);
 		}
 
-		private void FiddlerApplication_OnLogString(object sender, Fiddler.LogEventArgs e)
-		{
+		private void FiddlerApplication_OnLogString(object sender, Fiddler.LogEventArgs e) {
 			Console.WriteLine("** LogString: " + e.LogString);
 		}
 
-		private void FiddlerApplication_AfterSessionComplete(Session session)
-		{
+		private void FiddlerApplication_AfterSessionComplete(Session session) {
 			// Ignore HTTPS connect requests
 			if (session.RequestMethod == "CONNECT")
 				return;
@@ -127,7 +119,7 @@ namespace WebTester
 			Console.Error.WriteLine("Referer: " + referer);
 
 			var timers = session.Timers;
-			TimeSpan duration = (TimeSpan)(timers.ClientDoneResponse - timers.ClientBeginRequest);
+			var duration = (TimeSpan)(timers.ClientDoneResponse - timers.ClientBeginRequest);
 			Console.Error.WriteLine(String.Format("Duration: {0:F10}", duration.Milliseconds));
 			var dic = new Dictionary<string, object>() {
 				{ "url" ,full_url }, { "status", http_response_code },
@@ -137,7 +129,7 @@ namespace WebTester
 			insert(dic);
 
 			// https://groups.google.com/forum/#!msg/httpfiddler/RuFf5VzKCg0/wcgq-WeUnCoJ
-			//// the following code does not work as intended: request body is always blank
+			// the following code does not work as intended: request body is always blank
 			//string request_body = session.GetRequestBodyAsString();
 
 			//if (!string.IsNullOrEmpty(request_body))
@@ -148,8 +140,7 @@ namespace WebTester
 		}
 		#endregion
 		#region DB Helpers
-		bool TestConnection()
-		{
+		bool TestConnection() {
 			Console.WriteLine(String.Format("Testing database connection {0}...", database));
 			try {
 				using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
@@ -163,14 +154,13 @@ namespace WebTester
 			}
 		}
 
-		public bool insert(Dictionary<string, object> dic)
-		{
+		public bool insert(Dictionary<string, object> dic) {
 			try {
-				using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
-					using (SQLiteCommand cmd = new SQLiteCommand()) {
+				using (var conn = new SQLiteConnection(dataSource)) {
+					using (var cmd = new SQLiteCommand()) {
 						cmd.Connection = conn;
 						conn.Open();
-						SQLiteHelper sh = new SQLiteHelper(cmd);
+						var sh = new SQLiteHelper(cmd);
 						sh.Insert(tableName, dic);
 						conn.Close();
 						return true;
@@ -182,16 +172,15 @@ namespace WebTester
 			}
 		}
 
-		public void createTable()
-		{
-			using (SQLiteConnection conn = new SQLiteConnection(dataSource)) {
-				using (SQLiteCommand cmd = new SQLiteCommand()) {
+		public void createTable() {
+			using (var conn = new SQLiteConnection(dataSource)) {
+				using (var cmd = new SQLiteCommand()) {
 					cmd.Connection = conn;
 					conn.Open();
-					SQLiteHelper sh = new SQLiteHelper(cmd);
+					var sh = new SQLiteHelper(cmd);
 					sh.DropTable(tableName);
 
-					SQLiteTable tb = new SQLiteTable(tableName);
+					var tb = new SQLiteTable(tableName);
 					tb.Columns.Add(new SQLiteColumn("id", true));
 					tb.Columns.Add(new SQLiteColumn("url", ColType.Text));
 					tb.Columns.Add(new SQLiteColumn("referer", ColType.Text));
@@ -204,17 +193,15 @@ namespace WebTester
 		}
 		#endregion
 
-		public void Start()
-		{
-			
+		public void Start() {
 			Console.WriteLine("Starting application...");
 
 			// https://www.codeproject.com/Articles/1214209/Selenium-Series-Part-Killing-Laying-Around-Browser
 			Console.WriteLine("Terminating runaway selenium drivers...");
-			Process.GetProcessesByName("IEDriverServer").ToList().ForEach(p => p.Kill());
-			Process.GetProcessesByName("chromedriver").ToList().ForEach(p => p.Kill());
-			Process.GetProcessesByName("geckodriver").ToList().ForEach(p => p.Kill());
-
+			string[] browserDrivers = { "IEDriverServer", "chromedriver", "geckodriver", "WebDriver" };
+			foreach (string browserDriver in browserDrivers) {
+				Process.GetProcessesByName(browserDriver).ToList().ForEach(p => p.Kill());
+			}
 			Console.WriteLine("Starting Database connection...");
 			// dataFolderPath = Directory.GetCurrentDirectory();
 			database = String.Format(@"{0}\{1}", dataFolderPath, databaseName);
@@ -296,7 +283,7 @@ namespace WebTester
 			selenium.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(5);
 			#endregion
 			#region Edge-specific
-			Boolean useEdge = false;
+			#pragma warning disable 162
 			if (useEdge) {
 				RemoteWebDriver driver = null;
 				try {
@@ -316,13 +303,13 @@ namespace WebTester
 					} 
 				} 
 			}
+			#pragma warning restore 162
 			#endregion
 		}
 
-		private int getAvailablePort()
-		{
+		private int getAvailablePort() {
 			try {
-				Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+				var sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 				sock.Bind(new IPEndPoint(IPAddress.Any, 0));
 				int port = ((IPEndPoint)sock.LocalEndPoint).Port;
 				sock.Dispose();
@@ -334,16 +321,14 @@ namespace WebTester
 		}
 
 		// TODO : extract cookies
-		private void extract_headers_basic(string text)
-		{
+		private void extract_headers_basic(string text) {
 			foreach (Match m in Regex.Matches(text, @"(?<name>[^ ]+):(?<value>.+)\r\n")) {
 				Console.Error.WriteLine(String.Format("Header name = [{0}]", m.Groups["name"]));
 				Console.Error.WriteLine(String.Format("Data = [{0}]", m.Groups["value"]));
 			}
 		}
 
-		public void Stop()
-		{
+		public void Stop() {
 			Console.WriteLine("Shut down Fiddler Application.");
 			#region Unsubscribe Event handlers
 			FiddlerApplication.AfterSessionComplete -= FiddlerApplication_AfterSessionComplete;
@@ -371,8 +356,7 @@ namespace WebTester
 		}
 
 		// Not necessary when Fidddler Core is called from Powershell
-		public static void Main(string[] args)
-		{
+		public static void Main(string[] args) {
 			proxy = new Monitor();
 			#region Subscribe Event Handlers
 			NativeMethods.Handler = ConsoleEventCallback;
@@ -380,7 +364,7 @@ namespace WebTester
 			#endregion
 			proxy.Start();
 			Console.WriteLine("Press CTRL-C to exit"); 
-			Object forever = new Object();
+			var forever = new Object();
 			lock (forever) {
 				System.Threading.Monitor.Wait(forever);
 			}
@@ -388,8 +372,7 @@ namespace WebTester
 
 		#region Event Handlers
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms683242%28v=vs.85%29.aspx
-		private static bool ConsoleEventCallback(int eventType)
-		{
+		private static bool ConsoleEventCallback(int eventType) {
 			try {
 				proxy.Stop();
 				System.Threading.Thread.Sleep(1);
@@ -406,8 +389,7 @@ namespace WebTester
 		#endregion
 
 		#region Native Methods
-		internal static class NativeMethods
-		{
+		internal static class NativeMethods {
 			// entry for GC
 			internal static ConsoleEventDelegate Handler;
 			[DllImport("kernel32.dll", SetLastError = true)]

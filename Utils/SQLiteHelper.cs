@@ -28,7 +28,7 @@ namespace SQLite.Utils {
 
         public DataTable GetTableList() {
             DataTable dt = GetTableStatus();
-            DataTable dt2 = new DataTable();
+            var dt2 = new DataTable();
             dt2.Columns.Add("Tables");
             for (int i = 0; i < dt.Rows.Count; i++) {
                 string t = dt.Rows[i]["name"] + "";
@@ -153,16 +153,16 @@ namespace SQLite.Utils {
         }
 
         private List<SQLiteParameter> GetParametersList(Dictionary<string, object> dicParameters) {
-            List<SQLiteParameter> lst = new List<SQLiteParameter>();
+            var parameterList = new List<SQLiteParameter>();
             if (dicParameters != null) {
-                foreach (KeyValuePair<string, object> kv in dicParameters) {
-                    lst.Add(new SQLiteParameter(kv.Key, kv.Value));
+                foreach (KeyValuePair<string, object> o in dicParameters) {
+                    parameterList.Add(new SQLiteParameter(o.Key, o.Value));
                 }
             }
-            return lst;
+            return parameterList;
         }
 
-        public string Escape(string data) {
+        public static string Escape(string data) {
             data = data.Replace("'", "''");
             data = data.Replace("\\", "\\\\");
             return data;
@@ -200,14 +200,14 @@ namespace SQLite.Utils {
 
             cmd.CommandText = sbCol.ToString() + sbVal.ToString();
 
-            foreach (KeyValuePair<string, object> kv in dic) {
-                cmd.Parameters.AddWithValue("@v" + kv.Key, kv.Value);
+            foreach (KeyValuePair<string, object> o in dic) {
+                cmd.Parameters.AddWithValue("@v" + o.Key, o.Value);
             }
             cmd.ExecuteNonQuery();
         }
 
         public void Update(string tableName, Dictionary<string, object> dicData, string colCond, object varCond) {
-            Dictionary<string, object> dic = new Dictionary<string, object>();
+            var dic = new Dictionary<string, object>();
             dic[colCond] = varCond;
             Update(tableName, dicData, dic);
         }
@@ -218,7 +218,7 @@ namespace SQLite.Utils {
 
             StringBuilder sbData = new System.Text.StringBuilder();
 
-            Dictionary<string, object> _dicTypeSource = new Dictionary<string, object>();
+            var _dicTypeSource = new Dictionary<string, object>();
 
             foreach (KeyValuePair<string, object> kv1 in dicData) {
                 _dicTypeSource[kv1.Key] = null;
@@ -300,10 +300,8 @@ namespace SQLite.Utils {
 
             bool firstRecord = true;
 
-            foreach (SQLiteColumn col in table.Columns)
-            {
-                if (col.ColumnName.Trim().Length == 0)
-                {
+            foreach (SQLiteColumn col in table.Columns) {
+                if (col.ColumnName.Trim().Length == 0) {
                     throw new Exception("Column name cannot be blank.");
                 }
 
@@ -315,15 +313,12 @@ namespace SQLite.Utils {
                 sb.Append(col.ColumnName);
                 sb.Append(" ");
 
-                if (col.AutoIncrement)
-                {
-
+                if (col.AutoIncrement) {
                     sb.Append("integer primary key autoincrement");
                     continue;
                 }
 
-                switch (col.ColDataType)
-                {
+                switch (col.ColDataType) {
                     case ColType.Text:
                         sb.Append("text"); break;
                     case ColType.Integer:
@@ -340,18 +335,14 @@ namespace SQLite.Utils {
                     sb.Append(" primary key");
                 else if (col.NotNull)
                     sb.Append(" not null");
-                else if (col.DefaultValue.Length > 0)
-                {
+                else if (col.DefaultValue.Length > 0) {
                     sb.Append(" default ");
 
-                    if (col.DefaultValue.Contains(" ") || col.ColDataType == ColType.Text || col.ColDataType == ColType.DateTime)
-                    {
+                    if (col.DefaultValue.Contains(" ") || col.ColDataType == ColType.Text || col.ColDataType == ColType.DateTime) {
                         sb.Append("'");
                         sb.Append(col.DefaultValue);
                         sb.Append("'");
-                    }
-                    else
-                    {
+                    } else {
                         sb.Append(col.DefaultValue);
                     }
                 }
@@ -363,36 +354,28 @@ namespace SQLite.Utils {
             cmd.ExecuteNonQuery();
         }
 
-        public void RenameTable(string tableFrom, string tableTo)
-        {
+        public void RenameTable(string tableFrom, string tableTo) {
             cmd.CommandText = string.Format("alter table `{0}` rename to `{1}`;", tableFrom, tableTo);
             cmd.ExecuteNonQuery();
         }
 
-        public void CopyAllData(string tableFrom, string tableTo)
-        {
+        public void CopyAllData(string tableFrom, string tableTo) {
             DataTable dt1 = Select(string.Format("select * from `{0}` where 1 = 2;", tableFrom));
             DataTable dt2 = Select(string.Format("select * from `{0}` where 1 = 2;", tableTo));
 
-            Dictionary<string, bool> dic = new Dictionary<string, bool>();
+            var dic = new Dictionary<string, bool>();
 
-            foreach (DataColumn dc in dt1.Columns)
-            {
-                if (dt2.Columns.Contains(dc.ColumnName))
-                {
-                    if (!dic.ContainsKey(dc.ColumnName))
-                    {
+            foreach (DataColumn dc in dt1.Columns) {
+                if (dt2.Columns.Contains(dc.ColumnName)) {
+                    if (!dic.ContainsKey(dc.ColumnName)) {
                         dic[dc.ColumnName] = true;
                     }
                 }
             }
 
-            foreach (DataColumn dc in dt2.Columns)
-            {
-                if (dt1.Columns.Contains(dc.ColumnName))
-                {
-                    if (!dic.ContainsKey(dc.ColumnName))
-                    {
+            foreach (DataColumn dc in dt2.Columns) {
+                if (dt1.Columns.Contains(dc.ColumnName)) {
+                    if (!dic.ContainsKey(dc.ColumnName)) {
                         dic[dc.ColumnName] = true;
                     }
                 }
@@ -400,8 +383,7 @@ namespace SQLite.Utils {
 
             StringBuilder sb = new System.Text.StringBuilder();
 
-            foreach (KeyValuePair<string, bool> kv in dic)
-            {
+            foreach (KeyValuePair<string, bool> kv in dic) {
                 if (sb.Length > 0)
                     sb.Append(",");
 
@@ -425,14 +407,12 @@ namespace SQLite.Utils {
             cmd.ExecuteNonQuery();
         }
 
-        public void DropTable(string table)
-        {
+        public void DropTable(string table) {
             cmd.CommandText = string.Format("drop table if exists `{0}`", table);
             cmd.ExecuteNonQuery();
         }
 
-        public void UpdateTableStructure(string targetTable, SQLiteTable newStructure)
-        {
+        public void UpdateTableStructure(string targetTable, SQLiteTable newStructure) {
             newStructure.TableName = targetTable + "_temp";
             CreateTable(newStructure);
             CopyAllData(targetTable, newStructure.TableName);
@@ -440,17 +420,13 @@ namespace SQLite.Utils {
             RenameTable(newStructure.TableName, targetTable);
         }
 
-        public void AttachDatabase(string database, string alias)
-        {
+        public void AttachDatabase(string database, string alias) {
             Execute(string.Format("attach '{0}' as {1};", database, alias));
         }
 
-        public void DetachDatabase(string alias)
-        {
+        public void DetachDatabase(string alias) {
             Execute(string.Format("detach {0};", alias));
         }
-
         #endregion
-
     }
 }

@@ -1,8 +1,14 @@
 ﻿### FiddlerCore Page Performance Collector with SQLite database
-Collect details of the web navigation by establishing the proxy with the help of [FiddlerCore API](http://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCoQFjAAahUKEwjAjsXr44XGAhUCz4AKHa-LAKA&url=http%3A%2F%2Fwww.telerik.com%2Ffiddler%2Ffiddlercore&ei=IYV4VYD6OYKegwSvl4KACg&usg=AFQjCNFytjHPn-EXeXR3Vr-LT-syJw-huw&bvm=bv.95277229,d.eXY)
+
+Collects details of the web navigation by establishing the system level proxy with the help of [FiddlerCore API](http://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCoQFjAAahUKEwjAjsXr44XGAhUCz4AKHa-LAKA&url=http%3A%2F%2Fwww.telerik.com%2Ffiddler%2Ffiddlercore&ei=IYV4VYD6OYKegwSvl4KACg&usg=AFQjCNFytjHPn-EXeXR3Vr-LT-syJw-huw&bvm=bv.95277229,d.eXY)
 for the duration of the execution of the test.
 
-### Writing Tests
+### Running the  project demo
+Compile and run the project. It will create proxy and open the browser.  in this browser instance, navigatt to some place. The console window will show the collected page element timings. When page it finished loading, stop the process through the IDE. The databse `fiddler-data.db` will be in `Program/bin/Debug` directory.
+
+![SQLite database capture](https://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture1.png)
+
+###  Integrating Fiddlercore in Tests
 Include the following code from `Program.cs` into your project 
 ```c#
 proxy = new Monitor();
@@ -10,11 +16,6 @@ proxy.Start();
 // your test case here
 proxy.Stop();
 ```  
-
-The `duration` is computed from [Fiddler session timers](http://fiddler.wikidot.com/timers) as
- 
- ![SQLite database capture](https://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture1.png)
-
 The `duration` is computed from [Fiddler session timers](http://fiddler.wikidot.com/timers) as
 ```c#
 var timers = fiddler_session.Timers;
@@ -28,12 +29,12 @@ A replica of [SQLite Helper (C#) project sources](http://sh.codeplex.com) is inc
 This provides low-level, non-LINQ access to SQL database API.
 
 ### Bugs
-If the FiddlerCore proxy stops abnormally, there might be a 'Use a proxy server for your LAN' setting remining in the registry:
-![LAN setting](https://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture2.png)
+If the FiddlerCore proxy stops abnormally, the 'Use a proxy server for your LAN' setting will remain in the registry:
 ```
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings]
 "ProxyEnable"=dword:00000001
 ```
+![LAN setting](https://github.com/sergueik/fiddlercore_sqlite/raw/master/screenshots/capture2.png)
 
 ### See Also  
 
@@ -44,11 +45,11 @@ Page load and performance metrics provided by Chrome
 
 
 ### References
-* [FiddlerCore API](https://github.com/rkprajapat/webtester/blob/master/FiddlerCoreAPI/FiddlerCore.chm)
-* [Using FiddlerCore to capture HTTP Requests with .NET](https://weblog.west-wind.com/posts/2014/jul/29/using-fiddlercore-to-capture-http-requests-with-net)
-* [FiddlerCore dealing with Certificates](http://stackoverflow.com/questions/24969198/how-do-i-get-fiddlercore-programmatic-certificate-installation-to-stick)
-* [Titanium-Web-Proxy](https://github.com/justcoding121/Titanium-Web-Proxy) - a leightweight web proxy FiddlerCore alternative.
-* [Titanium SQLite](https://github.com/sergueik/titanium_sqlite)
+  * [FiddlerCore API](https://github.com/rkprajapat/webtester/blob/master/FiddlerCoreAPI/FiddlerCore.chm)
+  * [Using FiddlerCore to capture HTTP Requests with .NET](https://weblog.west-wind.com/posts/2014/jul/29/using-fiddlercore-to-capture-http-requests-with-net)
+  * [FiddlerCore dealing with Certificates](http://stackoverflow.com/questions/24969198/how-do-i-get-fiddlercore-programmatic-certificate-installation-to-stick)
+  * [Titanium-Web-Proxy](https://github.com/justcoding121/Titanium-Web-Proxy) - a leightweight web proxy FiddlerCore alternative.
+  * [Titanium SQLite](https://github.com/sergueik/titanium_sqlite)
 ### Note
 
 Traffic details
