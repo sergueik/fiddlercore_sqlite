@@ -50,21 +50,16 @@ Page load and performance metrics provided by Chrome
   * [FiddlerCore dealing with Certificates](http://stackoverflow.com/questions/24969198/how-do-i-get-fiddlercore-programmatic-certificate-installation-to-stick)
   * [Titanium-Web-Proxy](https://github.com/justcoding121/Titanium-Web-Proxy) - a leightweight web proxy FiddlerCore alternative.
   * [Titanium SQLite](https://github.com/sergueik/titanium_sqlite)
+  * [A Network Sniffer in C#](https://www.codeproject.com/Articles/17031/A-Network-Sniffer-in-C)
+
 ### Note
 
 Traffic details
-are stored in the SQLite database `fiddler-data.db` for measuring page performance at the individual Page element level.
+are stored in the SQLite database `fiddler-data.db` for measuring page performance at the individual *Page element* level.
 
-![SQLite database capture](htt
-The [browsermob-proxy](https://github.com/lightbody/browsermob-proxy) offers similar functionality for Java - see e.g. [http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html][http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html]
-
-
-### Note
-
-Telerik has recently unlisted the FiddlerCore nuget package from https://www.nuget.org/. Registration on https://www.telerik.com is required or download
+* Telerik has recently unlisted the FiddlerCore nuget package from https://www.nuget.org/. Registration on https://www.telerik.com is required or download
 https://www.telerik.com/fiddler/fiddlercore - only Personal & Educational use is free. The version numbering scheme is different now: latest available version
-of FiddlerCore nuget packages is 1.2018.1.13826-beta. The fllowing packages are available there:
-
+of FiddlerCore nuget packages is 1.2018.1.13826-beta. The following packages are available - appears, only .Net Standard 2.0 runtime is supported:
 ```
 FiddlerCore.1.20181.13826-beta.nupkg
 FiddlerCore.API.1.20181.13826-beta.nupkg
@@ -74,7 +69,12 @@ FiddlerCore.PlatformExtensions.Mac.1.20181.13826-beta.nupkg
 FiddlerCore.PlatformExtensions.Windows.1.20181.13826-beta.nupkg
 FiddlerCore.Utilities.1.20181.13826-beta.nupkg
 ```
-It appears, only .Net Standard 2.0 is supported by these.
+
+
+* The [browsermob-proxy](https://github.com/lightbody/browsermob-proxy) offers similar functionality for Java - see e.g. [http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html](http://amormoeba.blogspot.com/2014/02/how-to-use-browser-mob-proxy.html).
+* The [browserup-proxy](https://github.com/browserup/browserup-proxy#ssl-support) is a fork of [browsermob-proxy](https://github.com/lightbody/browsermob-proxy) with a better SSL support.
+
+
 ### Change History
 
   * version 1.1.x.x of the assembly is compiled with .net 4.5. NOTE: app still configured to runn on .net 4.0
