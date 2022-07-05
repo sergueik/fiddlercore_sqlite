@@ -95,7 +95,7 @@
       <Link>IEDriverServer.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\packages/Selenium.WebDriver.ChromeDriver.74.0.3729.6/driver/win32/chromedriver.exe">
+    <Content Include="..\packages\Selenium.WebDriver.ChromeDriver.103.0.5060.5300\driver\win32\chromedriver.exe">
       <Link>chromedriver.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -130,5 +130,6 @@
   </Target>
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Debug'">
     <Copy SourceFiles="..\packages\System.Data.SQLite.Core.1.0.109.2\build\net45\$(PlatformTarget)\SQLite.Interop.dll" DestinationFolder="$(OutputPath)" />
+    <Copy SourceFiles="..\packages\Selenium.WebDriver.ChromeDriver.103.0.5060.5300\driver\win32\chromedriver.exe" DestinationFolder="$(OutputPath)" />
   </Target>
 </Project>
