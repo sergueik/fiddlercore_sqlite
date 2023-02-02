@@ -198,7 +198,7 @@ namespace WebTester {
 
 			// https://www.codeproject.com/Articles/1214209/Selenium-Series-Part-Killing-Laying-Around-Browser
 			Console.WriteLine("Terminating runaway selenium drivers...");
-			string[] browserDrivers = { "IEDriverServer", "chromedriver", "geckodriver", "WebDriver" };
+			string[] browserDrivers = { /* "IEDriverServer", */ "chromedriver"  /* , "geckodriver"*/ , "WebDriver"  };
 			foreach (string browserDriver in browserDrivers) {
 				Process.GetProcessesByName(browserDriver).ToList().ForEach(p => p.Kill());
 			}
@@ -243,7 +243,9 @@ namespace WebTester {
 			// Usage:
 			FirefoxOptions firefoxOptions = new FirefoxOptions();
 			// TODO: detect browser application version
-			firefoxOptions.UseLegacyImplementation = true;
+			// TODO: Error CS1061: 'OpenQA.Selenium.Firefox.FirefoxOptions' does not contain a definition for 'UseLegacyImplementation' and no extension method 'UseLegacyImplementation' accepting a first argument of type 'OpenQA.Selenium.Firefox.FirefoxOptions' could be found
+			// firefoxOptions.UseLegacyImplementation = true;
+			
 			System.Environment.SetEnvironmentVariable("webdriver.gecko.driver", String.Format(@"{0}\geckodriver.exe", System.IO.Directory.GetCurrentDirectory()));
 			// TODO: System.ArgumentException: Preferences cannot be set directly when using the legacy FirefoxDriver implementation. Set them in the profile.
 			// options.SetPreference("network.automatic-ntlm-auth.trusted-uris", "http://,https://");
@@ -280,10 +282,12 @@ namespace WebTester {
 			firefoxOptions.Profile = profile;
             
 			var selenium = new FirefoxDriver(firefoxOptions);
+			
 			selenium.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(5);
 			#endregion
 			#region Edge-specific
 			#pragma warning disable 162
+			/*
 			if (useEdge) {
 				RemoteWebDriver driver = null;
 				try {
@@ -291,7 +295,9 @@ namespace WebTester {
 					string serverPath = System.IO.Directory.GetCurrentDirectory();
 					EdgeOptions edgeOptions = new EdgeOptions();
 					System.Environment.SetEnvironmentVariable("webdriver.edge.driver", String.Format(@"{0}\MicrosoftWebDriver.exe", serverPath));
-					edgeOptions.PageLoadStrategy = (PageLoadStrategy)EdgePageLoadStrategy.Eager;
+					// TODO: Error CS0103: The name 'EdgePageLoadStrategy' does not exist in the current context
+					// edgeOptions.PageLoadStrategy = (PageLoadStrategy)EdgePageLoadStrategy.Eager;
+					// TODO: Cannot implicitly convert type 'OpenQA.Selenium.Edge.EdgeDriver' to 'OpenQA.Selenium.Remote.RemoteWebDriver'
 					driver = new EdgeDriver(serverPath, edgeOptions);
 					// Set page load timeout to 5 seconds
 					driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(5);
@@ -302,7 +308,7 @@ namespace WebTester {
 						driver.Quit(); 
 					} 
 				} 
-			}
+			} */
 			#pragma warning restore 162
 			#endregion
 		}
